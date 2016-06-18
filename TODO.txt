@@ -1,0 +1,7 @@
+----- TODO -----
+.Criar validação para quando não encontrar os dados da mascara de rede e gateway e abrir dialog para usuário informar
+.Criar UI para utilização do sistema
+.Criar opção para utilização de um dos IP's livres
+.Criar tela para descobrir nome da máquina de determinado(s) ip(s)
+.Criar barra de progresso do descobrimento de IP
+

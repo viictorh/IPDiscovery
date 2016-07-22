@@ -14,6 +14,7 @@ public class SearchConfiguration {
 		ipStart = 1;
 		ipFinish = 255;
 		blockedWebPage = "http://facebook.com";
+		searchType = SearchType.NO_PROXY;
 	}
 
 	public int getIpStart() {

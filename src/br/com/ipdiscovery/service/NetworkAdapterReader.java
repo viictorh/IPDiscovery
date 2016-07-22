@@ -15,7 +15,6 @@ import br.com.ipdiscovery.helper.PromptExecutor;
 
 public class NetworkAdapterReader {
 
-	private String currentIP;
 	private int metric;
 	private static final byte NETWORK = 0;
 	private static final byte GATEWAY = 2;
@@ -25,13 +24,13 @@ public class NetworkAdapterReader {
 	public NetworkAdapter loadNetworkAdapterConfiguration() throws IOException {
 		NetworkAdapter networkAdapter = new NetworkAdapter();
 		findMainAdapterConfig(networkAdapter);
-		findSubnetMaskByIp(currentIP, networkAdapter);
+		findSubnetMaskByIp(networkAdapter);
+
 		return networkAdapter;
 	}
 
-	private void findSubnetMaskByIp(String currentIP, NetworkAdapter networkAdapter)
-			throws SocketException, UnknownHostException {
-		InetAddress localHost = Inet4Address.getByName(currentIP);
+	private void findSubnetMaskByIp(NetworkAdapter networkAdapter) throws SocketException, UnknownHostException {
+		InetAddress localHost = Inet4Address.getByName(networkAdapter.getIp());
 		NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
 
 		networkAdapter.setConnectionType(networkInterface.getName());
@@ -85,7 +84,7 @@ public class NetworkAdapterReader {
 						if (this.metric == 0 || number < this.metric) {
 							this.metric = number;
 							networkAdapter.setGateway(columns[GATEWAY]);
-							currentIP = columns[IP];
+							networkAdapter.setIp(columns[IP]);
 						}
 					}
 					checkInt.close();

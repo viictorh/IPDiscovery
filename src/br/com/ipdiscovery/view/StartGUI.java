@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 public class StartGUI {
-	private JFrame frame;
+	public static JFrame frame;
 
 	public StartGUI() {
 		prepareView();

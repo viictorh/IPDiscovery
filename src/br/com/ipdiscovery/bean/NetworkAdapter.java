@@ -1,6 +1,7 @@
 package br.com.ipdiscovery.bean;
 
 public class NetworkAdapter {
+	private String ip;
 	private String mask;
 	private String gateway;
 	private String dns1;
@@ -11,6 +12,14 @@ public class NetworkAdapter {
 		dns1 = "8.8.8.8";
 		dns2 = "8.8.4.4";
 		connectionType = "Local Area Connection";
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 
 	public String getMask() {
@@ -63,7 +72,9 @@ public class NetworkAdapter {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("NetworkAdapter [mask=");
+		builder.append("NetworkAdapter [ip=");
+		builder.append(ip);
+		builder.append(", mask=");
 		builder.append(mask);
 		builder.append(", gateway=");
 		builder.append(gateway);

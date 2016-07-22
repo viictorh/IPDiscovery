@@ -29,7 +29,7 @@ public class FreeIPFinder {
 
 	public void startSearch() throws IOException, InterruptedException {
 		for (String range : configuration.getIpRange()) {
-			for (int i = configuration.getIpStart(); i <= configuration.getIpFinish(); i++) {
+			for (int i = retrieveLastIpBlock(range); i <= configuration.getIpFinish(); i++) {
 				String ip = range + i;
 				changeAdapterSettings(ip);
 
@@ -53,9 +53,12 @@ public class FreeIPFinder {
 					}
 					break;
 				}
-
 			}
 		}
+	}
+
+	private int retrieveLastIpBlock(String ip) {
+		return Integer.parseInt(ip.substring(ip.lastIndexOf(".") + 1));
 	}
 
 	private void ipWithFullAccess(String ip, SearchType proxy) {

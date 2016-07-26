@@ -1,4 +1,4 @@
-package br.com.ipdiscovery.bean;
+package br.com.ipdiscovery.constant;
 
 public enum SearchType {
 

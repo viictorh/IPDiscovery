@@ -22,10 +22,11 @@ import javax.swing.UIManager;
 
 import org.apache.commons.lang.StringUtils;
 
+import br.com.ipdiscovery.bean.Execution;
 import br.com.ipdiscovery.bean.NetworkAdapter;
 import br.com.ipdiscovery.bean.ProxyConfiguration;
 import br.com.ipdiscovery.bean.SearchConfiguration;
-import br.com.ipdiscovery.bean.SearchType;
+import br.com.ipdiscovery.constant.SearchType;
 import br.com.ipdiscovery.service.NetworkAdapterReader;
 
 public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
@@ -65,9 +66,9 @@ public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 	private SearchConfiguration config = new SearchConfiguration();
 	private NetworkAdapter networkAdapter;
 
-	public ConfigurationGUI(CardLayoutManager cardLayoutManager) {
+	public ConfigurationGUI(final CardLayoutManager cardLayoutManager) {
 		loadConfig();
-		prepareFields();
+		prepareFields(cardLayoutManager);
 		preparePanel();
 	}
 
@@ -80,7 +81,7 @@ public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 		}
 	}
 
-	private void prepareFields() {
+	private void prepareFields(final CardLayoutManager cardLayoutManager) {
 		ipRangeInput.setToolTipText("Separe os ranges com ponto-e-virgula (;) Ex: 192.168.0.2; 192.168.1.65");
 		ipRangeInput.setLineWrap(true);
 		ipRangeInput.setText(removeLastIpBlock(networkAdapter.getIp()) + "1" + ";");
@@ -99,8 +100,10 @@ public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 		});
 		startSearch.addActionListener(l -> {
 			if (validConfiguration()) {
-
-				System.out.println(networkAdapter);
+				Execution execution = new Execution(config, networkAdapter);
+				ResultGUI resultGUI = new ResultGUI(cardLayoutManager, execution);
+				cardLayoutManager.addPanelToCardLayout(resultGUI);
+				cardLayoutManager.changeVisibleCardLayout(ResultGUI.class.getSimpleName());
 			}
 		});
 	}
@@ -115,7 +118,6 @@ public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 		if (StringUtils.isBlank(rangeInput)) {
 			valid = false;
 			fieldValidError(ipRangeInput, ipRangeLabelError, "Preencha ao menos um IP");
-			// showMessage and paint border
 		} else {
 			ipRangeInput.setText(rangeInput.endsWith(";") ? rangeInput : rangeInput + ";");
 			String[] ranges = rangeInput.split(";");

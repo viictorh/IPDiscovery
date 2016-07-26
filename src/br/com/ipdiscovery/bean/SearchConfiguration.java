@@ -2,6 +2,8 @@ package br.com.ipdiscovery.bean;
 
 import java.util.List;
 
+import br.com.ipdiscovery.constant.SearchType;
+
 public class SearchConfiguration {
 	private int ipStart;
 	private int ipFinish;

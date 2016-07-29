@@ -147,9 +147,6 @@ public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 					"Preencha um site que esteja bloqueado atualmente");
 		} else {
 			String url = blockedSiteInput.getText().toLowerCase();
-			if (!url.startsWith("http://") || !url.startsWith("https://")) {
-				url = "http://" + url;
-			}
 			fieldValidSuccess(blockedSiteInput, blockedSiteLabelError);
 			config.setBlockedWebPage(url);
 		}

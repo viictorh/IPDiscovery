@@ -43,6 +43,20 @@ public class ResultTableModel extends AbstractTableModel {
 		return null;
 	}
 
+	public void addRowOrEdit(Result result) {
+		if (data.contains(result)) {
+			int row = data.indexOf(result);
+			data.remove(result);
+			data.add(result);
+			fireTableCellUpdated(row, 1);
+			fireTableCellUpdated(row, 2);
+		} else {
+			data.add(result);
+			int linha = data.size() - 1;
+			fireTableRowsInserted(linha, linha);
+		}
+	}
+
 	public String getColumnName(int col) {
 		return columns[col];
 	}

@@ -68,30 +68,30 @@ public class NetworkAdapterReader {
 		return mask;
 	}
 
-	private void findMainAdapterConfig(NetworkAdapter networkAdapter) throws IOException {
+	public void findMainAdapterConfig(NetworkAdapter networkAdapter) throws IOException {
 		String[] command = new String[] { "cmd.exe", "/c", "netstat", "-r", "-n" };
 		String result = PromptExecutor.executeCommandAndReadResult(command);
-		Scanner scanner = new Scanner(result);
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.toUpperCase().startsWith("DEFAULT") || line.trim().startsWith("0.0.0.0")) {
-				String[] columns = line.trim().split("\\s+");
-				if (columns != null && columns.length == 5 && columns[NETWORK].equals("0.0.0.0")) {
-					String metric = columns[METRIC];
-					Scanner checkInt = new Scanner(metric);
-					if (checkInt.hasNextInt()) {
-						int number = Integer.parseInt(metric);
-						if (this.metric == 0 || number < this.metric) {
-							this.metric = number;
-							networkAdapter.setGateway(columns[GATEWAY]);
-							networkAdapter.setIp(columns[IP]);
+		try (Scanner scanner = new Scanner(result)) {
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if (line.toUpperCase().startsWith("DEFAULT") || line.trim().startsWith("0.0.0.0")) {
+					String[] columns = line.trim().split("\\s+");
+					if (columns != null && columns.length == 5 && columns[NETWORK].equals("0.0.0.0")) {
+						String metric = columns[METRIC];
+						try (Scanner checkInt = new Scanner(metric)) {
+							if (checkInt.hasNextInt()) {
+								int number = Integer.parseInt(metric);
+								if (this.metric == 0 || number < this.metric) {
+									this.metric = number;
+									networkAdapter.setGateway(columns[GATEWAY]);
+									networkAdapter.setIp(columns[IP]);
+								}
+							}
 						}
 					}
-					checkInt.close();
 				}
 			}
 		}
-		scanner.close();
 	}
 
 	public static void main(String[] args) throws IOException {

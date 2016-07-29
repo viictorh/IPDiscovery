@@ -59,8 +59,7 @@ public class NetworkAdapter {
 			return;
 		} else if (connectionType.toLowerCase().startsWith("eth")) {
 			this.connectionType = "Local Area Connection";
-
-		} else if (connectionType.toLowerCase().startsWith("net")) {
+		} else {
 			this.connectionType = "Wireless Network Connection";
 		}
 	}

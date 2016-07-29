@@ -1,8 +1,11 @@
 package br.com.ipdiscovery.view;
 
 import java.awt.CardLayout;
-import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -11,35 +14,82 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
 
 import br.com.ipdiscovery.bean.Execution;
+import br.com.ipdiscovery.bean.Result;
 import br.com.ipdiscovery.service.FreeIPFinder;
 import br.com.ipdiscovery.view.table.ResultTableModel;
 
 public class ResultGUI extends JPanel implements CardLayoutSetting {
 
+	private static final long serialVersionUID = -2023334124969527783L;
 	private JProgressBar progressBar;
 	private JTable table;
 	private JButton cancelButton;
+	private Timer timer;
+	private Execution execution;
 
 	public ResultGUI(final CardLayoutManager cardLayoutManager, Execution execution) {
-		createGUI(execution);
+		this.execution = execution;
+		createGUI();
 		preparePanel();
-//		start(execution);
+		start(execution);
 	}
 
 	private void start(Execution execution) {
-		FreeIPFinder f = new FreeIPFinder(execution);
-		try {
-			f.startSearch();
-		} catch (IOException | InterruptedException e) {
+		final SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>() {
+			@Override
+			protected Object doInBackground() throws Exception {
+				FreeIPFinder f = new FreeIPFinder(execution);
+				try {
+					f.startSearch();
+				} catch (IOException | InterruptedException e) {
 
-			e.printStackTrace();
-		}
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+		};
+		createTimer();
+		worker.execute();
 
 	}
 
-	private void createGUI(Execution execution) {
+	private void createTimer() {
+		timer = new Timer(1000, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				progressBar.setValue(execution.getCurrentProgressValue());
+				System.out.println(
+						"Execução: " + execution.getCurrentProgressValue() + "/" + execution.getMaxProgressValue());
+				if (true) {
+					if (!execution.isUpToDate()) {
+						ResultTableModel model = (ResultTableModel) table.getModel();
+						for (Result r : execution.getChangedResults()) {
+							model.addRowOrEdit(r);
+							execution.upToDate(true, r);
+						}
+					}
+				} else {
+					Toolkit.getDefaultToolkit().beep();
+					timer.stop();
+					// progressBar.setValue(progressBar.getMinimum());
+					// TODO remover botao cancelar. Criar botao "voltar" ou
+					// "fechar"
+
+				}
+
+			}
+		});
+		timer.start();
+
+	}
+
+	private void createGUI() {
 		// Create the demo's UI.
 		this.setLayout(new CardLayout());
 
@@ -51,7 +101,7 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 		progressBar.setStringPainted(true);
 
 		table = new JTable();
-		ResultTableModel model = new ResultTableModel(execution.getResults(), "Aplica��o", "Status", "Mensagem");
+		ResultTableModel model = new ResultTableModel(new ArrayList<>(), "IP", "Tipo (Proxy/Sem Proxy)", "Status");
 		table.setModel(model);
 		table.setAutoCreateColumnsFromModel(false);
 		// DefaultTableCellRenderer fce = model.new TableStyle();
@@ -61,10 +111,10 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 	private void preparePanel() {
 		JPanel panel = new JPanel();
 		JScrollPane jScrollPane = new JScrollPane(table);
-		jScrollPane.setPreferredSize(new Dimension(400, 500));
+		// jScrollPane.setPreferredSize(new Dimension(1600, 1700));
 		table.setFillsViewportHeight(true);
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		panel.setBorder(BorderFactory.createTitledBorder("Acompanhamento "));
+		panel.setBorder(BorderFactory.createTitledBorder("Verificando IPs "));
 		GroupLayout layout = new GroupLayout(panel);
 		panel.setLayout(layout);
 		layout.setAutoCreateGaps(true);
@@ -84,6 +134,7 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(jScrollPane)));
 
 		this.add(panel);
+		StartGUI.frame.pack();
 
 	}
 

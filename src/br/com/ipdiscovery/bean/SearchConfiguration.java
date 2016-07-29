@@ -15,7 +15,7 @@ public class SearchConfiguration {
 	public SearchConfiguration() {
 		ipStart = 1;
 		ipFinish = 255;
-		blockedWebPage = "http://facebook.com";
+		blockedWebPage = "https://twitter.com";
 		searchType = SearchType.NO_PROXY;
 	}
 

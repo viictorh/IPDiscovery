@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
  */
 public class MachineNameDiscovery {
 	public static void main(String[] args) throws IOException, InterruptedException {
-		String ipAddress = "172.16.1.";
 		String ipAddresses[] = { "172.16.0.18 ", "172.16.0.122", "172.16.0.133", "172.16.0.136", "172.16.0.137",
 				"172.16.0.138", "172.16.0.154", "172.16.0.173", "172.16.0.190", "172.16.0.199", "172.16.0.252",
 				"172.16.1.5  ", "172.16.1.18 ", "172.16.1.43 ", "172.16.1.59 ", "172.16.1.92 ", "172.16.1.118",

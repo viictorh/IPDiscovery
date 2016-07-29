@@ -6,16 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
-import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
-
-import com.sun.xml.internal.bind.v2.model.core.Adapter;
 
 import br.com.ipdiscovery.bean.Execution;
 import br.com.ipdiscovery.bean.NetworkAdapter;
@@ -35,6 +30,9 @@ public class FreeIPFinder {
 	public void startSearch() throws IOException, InterruptedException {
 		for (String range : execution.getConfiguration().getIpRange()) {
 			for (int i = retrieveLastIpBlock(range); i <= execution.getConfiguration().getIpFinish(); i++) {
+				if (Thread.currentThread().isInterrupted()) {
+					return;
+				}
 				String ip = removeLastIpBlock(range) + i;
 				Status status = Status.TESTING;
 				SearchType proxy = execution.getConfiguration().getSearchType();
@@ -65,6 +63,7 @@ public class FreeIPFinder {
 					status = Status.TIMEOUT;
 				}
 				ipTest(ip, status, proxy);
+
 			}
 		}
 	}

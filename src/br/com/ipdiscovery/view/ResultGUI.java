@@ -2,8 +2,6 @@ package br.com.ipdiscovery.view;
 
 import java.awt.CardLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -16,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import br.com.ipdiscovery.bean.Execution;
 import br.com.ipdiscovery.bean.Result;
@@ -28,61 +27,64 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 	private JProgressBar progressBar;
 	private JTable table;
 	private JButton cancelButton;
+	private JButton returnButton;
 	private Timer timer;
 	private Execution execution;
+	private SwingWorker<Object, Object> worker;
 
 	public ResultGUI(final CardLayoutManager cardLayoutManager, Execution execution) {
 		this.execution = execution;
 		createGUI();
+		prepareButtons(cardLayoutManager, this);
 		preparePanel();
-		start(execution);
 	}
 
-	private void start(Execution execution) {
-		final SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>() {
+	private void prepareButtons(CardLayoutManager cardLayoutManager, final ResultGUI resultGUI) {
+		cancelButton.addActionListener(l -> {
+			worker.cancel(true);
+			returnButton.setVisible(true);
+			cancelButton.setVisible(false);
+		});
+
+		returnButton.addActionListener(l -> {
+			cardLayoutManager.removePanel(resultGUI);
+			cardLayoutManager.changeVisibleCardLayout(ConfigurationGUI.class.getSimpleName());
+		});
+	}
+
+	public void start() {
+		worker = new SwingWorker<Object, Object>() {
 			@Override
 			protected Object doInBackground() throws Exception {
 				FreeIPFinder f = new FreeIPFinder(execution);
 				try {
 					f.startSearch();
 				} catch (IOException | InterruptedException e) {
-
 					e.printStackTrace();
 				}
 				return null;
 			}
-
 		};
 		createTimer();
 		worker.execute();
-
 	}
 
 	private void createTimer() {
-		timer = new Timer(1000, new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				progressBar.setValue(execution.getCurrentProgressValue());
-				System.out.println(
-						"Execução: " + execution.getCurrentProgressValue() + "/" + execution.getMaxProgressValue());
-				if (true) {
-					if (!execution.isUpToDate()) {
-						ResultTableModel model = (ResultTableModel) table.getModel();
-						for (Result r : execution.getChangedResults()) {
-							model.addRowOrEdit(r);
-							execution.upToDate(true, r);
-						}
+		timer = new Timer(1000, l -> {
+			progressBar.setValue(execution.getCurrentProgressValue());
+			System.out.println(
+					"Execução: " + execution.getCurrentProgressValue() + "/" + execution.getMaxProgressValue());
+			if (!worker.isCancelled() && execution.getCurrentProgressValue() < execution.getMaxProgressValue()) {
+				if (!execution.isUpToDate()) {
+					ResultTableModel model = (ResultTableModel) table.getModel();
+					for (Result r : execution.getChangedResults()) {
+						model.addRowOrEdit(r);
+						execution.upToDate(true, r);
 					}
-				} else {
-					Toolkit.getDefaultToolkit().beep();
-					timer.stop();
-					// progressBar.setValue(progressBar.getMinimum());
-					// TODO remover botao cancelar. Criar botao "voltar" ou
-					// "fechar"
-
 				}
-
+			} else {
+				Toolkit.getDefaultToolkit().beep();
+				timer.stop();
 			}
 		});
 		timer.start();
@@ -90,13 +92,12 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 	}
 
 	private void createGUI() {
-		// Create the demo's UI.
 		this.setLayout(new CardLayout());
-
 		cancelButton = new JButton("Cancelar");
-		cancelButton.setActionCommand("cancel");
+		returnButton = new JButton("Voltar");
+		returnButton.setVisible(false);
 
-		progressBar = new JProgressBar(0, 1000);
+		progressBar = new JProgressBar(0, execution.getMaxProgressValue());
 		progressBar.setValue(0);
 		progressBar.setStringPainted(true);
 
@@ -104,14 +105,13 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 		ResultTableModel model = new ResultTableModel(new ArrayList<>(), "IP", "Tipo (Proxy/Sem Proxy)", "Status");
 		table.setModel(model);
 		table.setAutoCreateColumnsFromModel(false);
-		// DefaultTableCellRenderer fce = model.new TableStyle();
-		// table.setDefaultRenderer(Object.class, fce);
+		DefaultTableCellRenderer fce = model.new TableStyle();
+		table.setDefaultRenderer(Object.class, fce);
 	}
 
 	private void preparePanel() {
 		JPanel panel = new JPanel();
 		JScrollPane jScrollPane = new JScrollPane(table);
-		// jScrollPane.setPreferredSize(new Dimension(1600, 1700));
 		table.setFillsViewportHeight(true);
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		panel.setBorder(BorderFactory.createTitledBorder("Verificando IPs "));
@@ -125,17 +125,17 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 										.addComponent(cancelButton))
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(returnButton))
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(progressBar)))
 				.addComponent(jScrollPane));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(cancelButton)
-						.addComponent(progressBar))
+						.addComponent(returnButton).addComponent(progressBar))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(jScrollPane)));
 
 		this.add(panel);
-		StartGUI.frame.pack();
-
+		StartGUI.frame.repaint();
 	}
 
 	@Override

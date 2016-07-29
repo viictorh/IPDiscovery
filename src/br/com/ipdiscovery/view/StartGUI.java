@@ -16,15 +16,15 @@ public class StartGUI {
 	private void prepareView() {
 		frame = new JFrame("IPDiscovery - v_1.0");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
 		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 	}
 
 	private void prepareCardLayout() {
-		 frame.add(new CardLayoutManager(frame.getContentPane()));
+		frame.add(new CardLayoutManager(frame.getContentPane()));
 	}
 
 	private void showView() {
+		frame.setResizable(false);
 		frame.pack();
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);

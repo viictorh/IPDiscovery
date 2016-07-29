@@ -1,6 +1,7 @@
 package br.com.ipdiscovery.view;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,6 +105,7 @@ public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 				ResultGUI resultGUI = new ResultGUI(cardLayoutManager, execution);
 				cardLayoutManager.addPanelToCardLayout(resultGUI);
 				cardLayoutManager.changeVisibleCardLayout(ResultGUI.class.getSimpleName());
+				resultGUI.start();
 			}
 		});
 	}
@@ -234,6 +236,7 @@ public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 	private void preparePanel() {
 		JScrollPane areaScroll = new JScrollPane(ipRangeInput, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		areaScroll.setPreferredSize(new Dimension(200, 50));
 		this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		this.setBorder(BorderFactory.createTitledBorder("Verifique se as configurações estão corretas "));
 		GroupLayout layout = new GroupLayout(this);

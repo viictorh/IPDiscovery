@@ -9,15 +9,30 @@ import javax.swing.JPanel;
 public class CardLayoutManager extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel cards = new JPanel(new CardLayout());
+	private JPanel cards;
 
+	@SuppressWarnings("serial")
 	protected CardLayoutManager(Container pane) {
+		CardLayout cl = new CardLayout() {
+			@Override
+			public void show(java.awt.Container parent, String name) {
+				super.show(parent, name);
+				StartGUI.frame.pack();
+				StartGUI.frame.setLocationRelativeTo(null);
+			}
+		};
+		cards = new JPanel(cl);
 		addPanelToCardLayout(new ConfigurationGUI(this).retrievePanel());
 		pane.add(cards);
 	}
 
 	public void addPanelToCardLayout(CardLayoutSetting panel) {
+		cards.remove((Component) panel);
 		cards.add((Component) panel, panel.retrivePanelName());
+	}
+
+	public void removePanel(CardLayoutSetting panel) {
+		cards.remove((Component) panel);
 	}
 
 	public void changeVisibleCardLayout(String cardName) {

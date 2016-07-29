@@ -9,7 +9,7 @@ public class Execution {
 	private SearchConfiguration configuration;
 	private NetworkAdapter adapter;
 	private Set<Result> changedResults;
-	private int maxProgressValue=1;
+	private int maxProgressValue = 1;
 	private int currentProgressValue;
 
 	private boolean upToDate;
@@ -81,12 +81,14 @@ public class Execution {
 		this.upToDate = upToDate;
 		if (upToDate) {
 			changedResults.remove(result);
+			if (!result.getStatus().equals(Status.TESTING)) {
+				currentProgressValue++;
+				System.out.println(" ====-----==== ");
+				System.out.println("Current value: " + currentProgressValue + " :" + result);
+				System.out.println(" ====-----==== ");
+			}
 		} else {
 			changedResults.add(result);
-		}
-
-		if (!result.getStatus().equals(Status.TESTING)) {
-			currentProgressValue++;
 		}
 
 	}

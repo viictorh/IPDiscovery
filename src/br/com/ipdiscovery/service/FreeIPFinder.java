@@ -10,67 +10,85 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
+import java.net.UnknownHostException;
 
+import br.com.ipdiscovery.bean.Execution;
 import br.com.ipdiscovery.bean.NetworkAdapter;
-import br.com.ipdiscovery.bean.SearchConfiguration;
-import br.com.ipdiscovery.bean.SearchType;
+import br.com.ipdiscovery.bean.Result;
+import br.com.ipdiscovery.constant.SearchType;
+import br.com.ipdiscovery.constant.Status;
 import br.com.ipdiscovery.helper.PromptExecutor;
 
 public class FreeIPFinder {
 
-	private SearchConfiguration configuration;
-	private NetworkAdapter adapter;
+	private Execution execution;
 
-	public FreeIPFinder(SearchConfiguration configuration, NetworkAdapter adapter) {
-		this.configuration = configuration;
-		this.adapter = adapter;
+	public FreeIPFinder(Execution execution) {
+		this.execution = execution;
 	}
 
 	public void startSearch() throws IOException, InterruptedException {
-		for (String range : configuration.getIpRange()) {
-			for (int i = configuration.getIpStart(); i <= configuration.getIpFinish(); i++) {
-				String ip = range + i;
-				changeAdapterSettings(ip);
-
-				switch (configuration.getSearchType()) {
-				case BOTH:
-					if (isConnectionGranted(true)) {
-						ipWithFullAccess(ip, SearchType.PROXY);
-					}
-					if (isConnectionGranted(false)) {
-						ipWithFullAccess(ip, SearchType.NO_PROXY);
-					}
-					break;
-				case PROXY:
-					if (isConnectionGranted(true)) {
-						ipWithFullAccess(ip, SearchType.PROXY);
-					}
-					break;
-				case NO_PROXY:
-					if (isConnectionGranted(false)) {
-						ipWithFullAccess(ip, SearchType.NO_PROXY);
-					}
-					break;
+		for (String range : execution.getConfiguration().getIpRange()) {
+			for (int i = retrieveLastIpBlock(range); i <= execution.getConfiguration().getIpFinish(); i++) {
+				if (Thread.currentThread().isInterrupted()) {
+					return;
 				}
+				String ip = removeLastIpBlock(range) + i;
+				Status status = Status.TESTING;
+				SearchType proxy = execution.getConfiguration().getSearchType();
+				ipTest(ip, status, proxy);
+				if (changedAdapterSettings(ip)) {
+
+					switch (execution.getConfiguration().getSearchType()) {
+					case BOTH: {
+						boolean proxyConnectionGranted = isConnectionGranted(true);
+						boolean noProxyConnectionGranted = isConnectionGranted(false);
+
+						status = proxyConnectionGranted || noProxyConnectionGranted ? Status.FREE : Status.BLOCKED;
+						if (proxyConnectionGranted && !noProxyConnectionGranted) {
+							proxy = SearchType.PROXY;
+						} else if (!proxyConnectionGranted && noProxyConnectionGranted) {
+							proxy = SearchType.NO_PROXY;
+						}
+						break;
+					}
+					case PROXY:
+						status = isConnectionGranted(true) ? Status.FREE : Status.BLOCKED;
+						break;
+					case NO_PROXY:
+						status = isConnectionGranted(false) ? Status.FREE : Status.BLOCKED;
+						break;
+					}
+				} else {
+					status = Status.TIMEOUT;
+				}
+				ipTest(ip, status, proxy);
 
 			}
 		}
 	}
 
-	private void ipWithFullAccess(String ip, SearchType proxy) {
-		System.out.println("IP LIBERADO:" + ip + " search type:" + proxy);
+	private void ipTest(String ip, Status status, SearchType proxy) {
+		Result r2 = new Result(ip, status, proxy);
+		execution.upToDate(false, r2);
+	}
 
+	private int retrieveLastIpBlock(String ip) {
+		return Integer.parseInt(ip.substring(ip.lastIndexOf(".") + 1));
+	}
+
+	private String removeLastIpBlock(String ip) {
+		return ip.substring(0, ip.lastIndexOf(".") + 1);
 	}
 
 	private boolean isConnectionGranted(boolean useProxy) throws MalformedURLException {
-		URL website = new URL(configuration.getBlockedWebPage());
+		URL website = new URL(execution.getConfiguration().getBlockedWebPage());
 		try {
 			HttpURLConnection connection = null;
 			if (useProxy) {
 				Proxy proxy = new Proxy(Proxy.Type.HTTP,
-						new InetSocketAddress(configuration.getProxyConfiguration().getIp(),
-								configuration.getProxyConfiguration().getPort()));
+						new InetSocketAddress(execution.getConfiguration().getProxyConfiguration().getIp(),
+								execution.getConfiguration().getProxyConfiguration().getPort()));
 				connection = (HttpURLConnection) website.openConnection(proxy);
 			} else {
 				connection = (HttpURLConnection) website.openConnection();
@@ -112,20 +130,36 @@ public class FreeIPFinder {
 		return result;
 	}
 
-	private void changeAdapterSettings(String ip) throws IOException, InterruptedException {
+	private boolean changedAdapterSettings(String ip) throws IOException, InterruptedException {
 		String[] startAsAdmin = new String[] { "cmd.exe", "/c", "netsh", "interface", "ip", "set", "address", "name=",
-				adapter.getConnectionType(), "source=static", "addr=", ip, "mask=", adapter.getMask(), "gateway=",
-				adapter.getGateway() };
+				execution.getAdapter().getConnectionType(), "source=static", "addr=", ip, "mask=",
+				execution.getAdapter().getMask(), "gateway=", execution.getAdapter().getGateway() };
 
 		String[] command2 = { "cmd.exe", "/c", "netsh", "interface", "ip", "add", "dnsserver",
-				adapter.getConnectionType(), "address=", adapter.getDns1(), "index=", "1" };
+				execution.getAdapter().getConnectionType(), "address=", execution.getAdapter().getDns1(), "index=",
+				"1" };
 		String[] command3 = { "cmd.exe", "/c", "netsh", "interface", "ip", "add", "dnsserver",
-				adapter.getConnectionType(), "address=", adapter.getDns2(), "index=", "2" };
+				execution.getAdapter().getConnectionType(), "address=", execution.getAdapter().getDns2(), "index=",
+				"2" };
 
 		PromptExecutor.executeCommand(startAsAdmin);
 		PromptExecutor.executeCommand(command2);
 		PromptExecutor.executeCommand(command3);
-		TimeUnit.SECONDS.sleep(10);
+		return checkIPChanged(ip);
+	}
+
+	private boolean checkIPChanged(String ip) throws UnknownHostException, IOException {
+		NetworkAdapter adapter = null;
+		long init = System.currentTimeMillis();
+		do {
+			NetworkAdapterReader reader = new NetworkAdapterReader();
+			adapter = new NetworkAdapter();
+			reader.findMainAdapterConfig(adapter);
+			if (ip.equals(adapter.getIp())) {
+				return true;
+			}
+		} while (((System.currentTimeMillis() - init) / 1000) < 20);
+		return false;
 	}
 
 }

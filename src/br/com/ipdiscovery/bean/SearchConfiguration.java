@@ -2,6 +2,8 @@ package br.com.ipdiscovery.bean;
 
 import java.util.List;
 
+import br.com.ipdiscovery.constant.SearchType;
+
 public class SearchConfiguration {
 	private int ipStart;
 	private int ipFinish;
@@ -13,7 +15,8 @@ public class SearchConfiguration {
 	public SearchConfiguration() {
 		ipStart = 1;
 		ipFinish = 255;
-		blockedWebPage = "http://facebook.com";
+		blockedWebPage = "https://twitter.com";
+		searchType = SearchType.NO_PROXY;
 	}
 
 	public int getIpStart() {

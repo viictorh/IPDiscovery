@@ -1,0 +1,8 @@
+----- TODO -----
+.Criar opção para exportar os resultados obtidos (Ips livres, bloqueados, etc).
+.Criar opção para utilização de um dos IP's livres
+.Criar opção para retornar a placa de rede para o estado inicial (default)
+.Criar opção para adicionar o final do range. Ex: 172.16.0.12-50; 172.16.0.80-91 - A busca será realizada do ip 12 até o 50 e do 80 ao 91.
+.Criar tela para descobrir nome da máquina de determinado(s) ip(s)
+
+

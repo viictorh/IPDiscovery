@@ -8,6 +8,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe de teste
+ */
 public class IPDiscovery {
 	private static String ipRange;
 	private static String mask;

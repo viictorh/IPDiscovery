@@ -1,0 +1,3 @@
+Manifest-Version: 1.00.00
+Created-By: Victor Bello
+Main-Class: br.com.ipdiscovery.view.StartGUI

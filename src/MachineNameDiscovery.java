@@ -6,6 +6,12 @@ import java.net.NetworkInterface;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe de teste
+ */
 public class MachineNameDiscovery {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		String ipAddress = "172.16.1.";

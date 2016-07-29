@@ -4,6 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *	Classe responsável pela execução de comandos no Prompt de comando (CMD - DOS)
+ */
 public class PromptExecutor {
 
 	public static String executeCommandAndReadResult(String... command) throws IOException {

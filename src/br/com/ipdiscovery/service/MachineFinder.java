@@ -12,17 +12,24 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URL;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe de teste
+ */
 public class MachineFinder {
 	public static void main(String[] args) throws MalformedURLException, IOException {
 		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("172.16.1.253", 8080));
-//		Authenticator authenticator = new Authenticator() {
-//
-//			public PasswordAuthentication getPasswordAuthentication() {
-//				return (new PasswordAuthentication("victor.bello@voxage.com.br", "victor123".toCharArray()));
-//			}
-//		};
-//		Authenticator.setDefault(authenticator);
-		
+		// Authenticator authenticator = new Authenticator() {
+		//
+		// public PasswordAuthentication getPasswordAuthentication() {
+		// return (new PasswordAuthentication("victor.bello@voxage.com.br",
+		// "victor123".toCharArray()));
+		// }
+		// };
+		// Authenticator.setDefault(authenticator);
+
 		HttpURLConnection connection = (HttpURLConnection) new URL("http://www.google.com.br").openConnection(proxy);
 		System.out.println(connection.getResponseCode());
 		InputStream is = connection.getInputStream();

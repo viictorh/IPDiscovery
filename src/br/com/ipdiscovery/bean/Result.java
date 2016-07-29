@@ -3,6 +3,12 @@ package br.com.ipdiscovery.bean;
 import br.com.ipdiscovery.constant.SearchType;
 import br.com.ipdiscovery.constant.Status;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *	Resultado da busca por IP
+ */
 public class Result {
 	private String ip;
 	private Status status;

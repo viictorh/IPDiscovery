@@ -1,5 +1,11 @@
 package br.com.ipdiscovery.bean;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *	Configuração de proxy, caso necessário, que será utilizado 
+ */
 public class ProxyConfiguration {
 
 	private String ip;

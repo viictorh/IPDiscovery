@@ -1,5 +1,11 @@
 package br.com.ipdiscovery.bean;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe com os valores da placa de rede identificada
+ */
 public class NetworkAdapter {
 	private String ip;
 	private String mask;

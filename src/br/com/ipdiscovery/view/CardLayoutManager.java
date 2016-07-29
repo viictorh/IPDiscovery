@@ -6,6 +6,12 @@ import java.awt.Container;
 
 import javax.swing.JPanel;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe responsável por gerenciar o cardLayout
+ */
 public class CardLayoutManager extends JPanel {
 
 	private static final long serialVersionUID = 1L;

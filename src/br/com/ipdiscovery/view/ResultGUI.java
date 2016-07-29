@@ -21,6 +21,12 @@ import br.com.ipdiscovery.bean.Result;
 import br.com.ipdiscovery.service.FreeIPFinder;
 import br.com.ipdiscovery.view.table.ResultTableModel;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *	Tela de progresso da busca por IP
+ */
 public class ResultGUI extends JPanel implements CardLayoutSetting {
 
 	private static final long serialVersionUID = -2023334124969527783L;
@@ -85,6 +91,8 @@ public class ResultGUI extends JPanel implements CardLayoutSetting {
 			} else {
 				Toolkit.getDefaultToolkit().beep();
 				timer.stop();
+				cancelButton.setVisible(false);
+				returnButton.setVisible(true);
 			}
 		});
 		timer.start();

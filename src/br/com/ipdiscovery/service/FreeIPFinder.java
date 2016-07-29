@@ -19,6 +19,14 @@ import br.com.ipdiscovery.constant.SearchType;
 import br.com.ipdiscovery.constant.Status;
 import br.com.ipdiscovery.helper.PromptExecutor;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe responsável pela execução dos comandos para trocar os valores
+ *         do adaptador de rede, os IPs que serão testados e enviar os
+ *         resultados das operações
+ */
 public class FreeIPFinder {
 
 	private Execution execution;

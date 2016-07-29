@@ -30,6 +30,12 @@ import br.com.ipdiscovery.bean.SearchConfiguration;
 import br.com.ipdiscovery.constant.SearchType;
 import br.com.ipdiscovery.service.NetworkAdapterReader;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Tela de configuração da busca de IP livre
+ */
 public class ConfigurationGUI extends JPanel implements CardLayoutSetting {
 
 	private static final String IPV4_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."

@@ -13,6 +13,13 @@ import java.util.Scanner;
 import br.com.ipdiscovery.bean.NetworkAdapter;
 import br.com.ipdiscovery.helper.PromptExecutor;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe responsável pela leitura dos valores da placa de rede que o
+ *         usuário está utilizando
+ */
 public class NetworkAdapterReader {
 
 	private int metric;

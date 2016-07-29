@@ -4,6 +4,12 @@ import java.util.List;
 
 import br.com.ipdiscovery.constant.SearchType;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *	Configuração que será utilizada na busca por IP livre
+ */
 public class SearchConfiguration {
 	private int ipStart;
 	private int ipFinish;

@@ -13,6 +13,12 @@ import javax.swing.table.DefaultTableCellRenderer;
 import br.com.ipdiscovery.bean.Result;
 import br.com.ipdiscovery.constant.Status;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Modelo para utilização de JTable com os resultados da busca por IP
+ */
 public class ResultTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1353130016835005114L;

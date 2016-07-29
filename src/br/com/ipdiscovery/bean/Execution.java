@@ -5,6 +5,15 @@ import java.util.Set;
 
 import br.com.ipdiscovery.constant.Status;
 
+/**
+ * 
+ * @author victor.bello
+ *
+ *         Classe responsável por centralizar a execução da busca por IPs
+ *         livres. Nela estão os resultados e quais configurações foram
+ *         escolhidas, bem como os dados da placa de rede que está sendo
+ *         utilizada
+ */
 public class Execution {
 	private SearchConfiguration configuration;
 	private NetworkAdapter adapter;

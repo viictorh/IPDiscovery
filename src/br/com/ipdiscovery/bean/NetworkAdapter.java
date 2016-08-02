@@ -61,13 +61,7 @@ public class NetworkAdapter {
 	}
 
 	public void setConnectionType(String connectionType) {
-		if (connectionType == null) {
-			return;
-		} else if (connectionType.toLowerCase().startsWith("eth")) {
-			this.connectionType = "Local Area Connection";
-		} else {
-			this.connectionType = "Wireless Network Connection";
-		}
+		this.connectionType = connectionType;
 	}
 
 	public String getConnectionType() {

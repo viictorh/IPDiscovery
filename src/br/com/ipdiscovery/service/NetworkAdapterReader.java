@@ -7,6 +7,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Scanner;
 
@@ -36,11 +37,11 @@ public class NetworkAdapterReader {
 		return networkAdapter;
 	}
 
-	private void findSubnetMaskByIp(NetworkAdapter networkAdapter) throws SocketException, UnknownHostException {
+	private void findSubnetMaskByIp(NetworkAdapter networkAdapter) throws IOException {
 		InetAddress localHost = Inet4Address.getByName(networkAdapter.getIp());
 		NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
 
-		networkAdapter.setConnectionType(networkInterface.getName());
+		networkAdapter.setConnectionType(retrieveConnectionName(networkInterface.getIndex()));
 		for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {
 			InetAddress inetAddr = address.getAddress();
 
@@ -49,6 +50,23 @@ public class NetworkAdapterReader {
 			}
 			networkAdapter.setMask(generateMaskFromPrefix(address.getNetworkPrefixLength()));
 		}
+	}
+
+	private String retrieveConnectionName(int index) throws IOException {
+		final int interfaceIndex = 0;
+		final int interfaceName = 4;
+		String[] command = new String[] { "cmd.exe", "/c", "netsh", "interface", "ipv4", "show", "interfaces" };
+		String result = PromptExecutor.executeCommandAndReadResult(command);
+		try (Scanner scanner = new Scanner(result)) {
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				String[] split = line.split("\\s{2,}");
+				if (split != null && split[interfaceIndex].trim().equals(String.valueOf(index))) {
+					return split[interfaceName];
+				}
+			}
+		}
+		return null;
 	}
 
 	private String generateMaskFromPrefix(short s) {
@@ -101,81 +119,23 @@ public class NetworkAdapterReader {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-
-		InetAddress localHost = Inet4Address.getByName("172.16.0.199");
-		NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
-
-		for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {
-			System.out.println(address.getNetworkPrefixLength());
-		}
-
-		for (Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces(); interfaces
-				.hasMoreElements();) {
-			NetworkInterface cur = interfaces.nextElement();
-			System.out.println("===========================");
-			System.out.println(cur.getName());
-			System.out.println(cur.getDisplayName());
-			System.out.println(cur.getHardwareAddress());
-			Enumeration<NetworkInterface> subInterfaces = cur.getSubInterfaces();
-			while (subInterfaces.hasMoreElements()) {
-				NetworkInterface networkInterface2 = (NetworkInterface) subInterfaces.nextElement();
-				System.out.println(networkInterface2.getName());
-				System.out.println(networkInterface2.getDisplayName());
-			}
-			Enumeration<InetAddress> inetAddresses = cur.getInetAddresses();
-			while (inetAddresses.hasMoreElements()) {
-				InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
-				System.out.println(inetAddress.getHostAddress());
-				System.out.println(inetAddress.getCanonicalHostName());
-				System.out.println(inetAddress.getHostName());
-			}
-			System.out.println("===========================");
-			if (cur.isLoopback()) {
-				continue;
-			}
-
-			System.out.println("interface " + cur.getName());
-
-			for (InterfaceAddress addr : cur.getInterfaceAddresses()) {
-				InetAddress inet_addr = addr.getAddress();
-
-				if (!(inet_addr instanceof Inet4Address)) {
-					continue;
-				}
-
-				System.out.println("  address: " + inet_addr.getHostAddress() + "/" + addr.getNetworkPrefixLength());
-
-				System.out.println("  broadcast address: " + addr.getBroadcast().getHostAddress());
-			}
-		}
-
-		System.out.println("============================================");
-		System.out.println("============================================");
-		System.out.println("============================================");
-		int netPrefix = -1;
-		try {
-			// Since this is for IPv4, it's 32 bits, so set the sign value of
-			// the int to "negative"...
-			int shiftby = (1 << 31);
-			// For the number of bits of the prefix -1 (we already set the sign
-			// bit)
-			for (int i = netPrefix - 1; i > 0; i--) {
-				// Shift the sign right... Java makes the sign bit sticky on a
-				// shift...
-				// So no need to "set it back up"...
-				shiftby = (shiftby >> 1);
-			}
-			// Transform the resulting value in xxx.xxx.xxx.xxx format, like if
-			/// it was a standard address...
-			String maskString = Integer.toString((shiftby >> 24) & 255) + "." + Integer.toString((shiftby >> 16) & 255)
-					+ "." + Integer.toString((shiftby >> 8) & 255) + "." + Integer.toString(shiftby & 255);
-			// Return the address thus created...
-			System.out.println("MASK" + maskString);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	public static void main(String args[]) throws SocketException {
+		Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+		for (NetworkInterface netint : Collections.list(nets))
+			displayInterfaceInformation(netint);
 	}
 
+	static void displayInterfaceInformation(NetworkInterface netint) throws SocketException {
+		if (netint.getIndex() > 1 && netint.getMTU() > 0) {
+			System.out.printf("Display name: %s\n", netint.getDisplayName());
+			System.out.printf("Name: %s\n", netint.getName());
+			System.out.println(netint.getIndex());
+			System.out.println(netint.getMTU());
+			Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
+			for (InetAddress inetAddress : Collections.list(inetAddresses)) {
+				System.out.printf("InetAddress: %s\n", inetAddress);
+			}
+			System.out.printf("\n");
+		}
+	}
 }
